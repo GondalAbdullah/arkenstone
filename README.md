@@ -63,7 +63,7 @@ docs/adr/         # architecture decision records
 
 ## Tech stack
 
-Expo SDK 54 · Expo Router · TypeScript (strict) · expo-sqlite · React Native
+Expo SDK 57 · Expo Router · TypeScript (strict) · expo-sqlite · React Native
 Reanimated · lucide-react-native icons.
 
 ## License

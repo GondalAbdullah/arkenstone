@@ -4,7 +4,7 @@ Date: 2026-09-12
 
 ## Status
 
-Accepted
+Superseded by [0009](0009-upgrade-to-expo-sdk-57.md)
 
 ## Context
 
