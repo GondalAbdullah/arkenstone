@@ -46,6 +46,10 @@ an Expo project without a local Android SDK/toolchain.
   treated as permanent: changing it later means a new, unrelated Android
   app identity (fresh install, no update path from the old one).
 
+  > **Update ([ADR 0008](0008-rename-to-arkenstone.md)):** the app was
+  > renamed to Arkenstone before any public release, so this was changed
+  > anyway, to `com.abdullahgondal.arkenstone` — while it was still cheap.
+
 ## Consequences
 
 - `eas build --platform android --profile production` (or

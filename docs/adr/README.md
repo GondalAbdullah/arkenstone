@@ -18,3 +18,4 @@ only describing it in a commit message.
 - [0005 - Stay on Expo SDK 54 despite AGENTS.md's SDK 57 guidance](0005-stay-on-expo-sdk-54.md)
 - [0006 - GitHub-readiness housekeeping](0006-github-readiness-housekeeping.md)
 - [0007 - EAS Build for internal Android APK distribution](0007-eas-build-android-apk.md)
+- [0008 - Rename the app to Arkenstone](0008-rename-to-arkenstone.md)

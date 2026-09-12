@@ -97,7 +97,7 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Expense Tracker" />
+      <ScreenHeader title="Arkenstone" />
 
       <Text style={styles.pageTitle}>Transaction History</Text>
 

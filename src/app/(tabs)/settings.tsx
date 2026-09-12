@@ -6,7 +6,7 @@ const COLORS = { surface: '#fcf9f8', onSurface: '#1b1c1c', onSurfaceVariant: '#4
 export default function SettingsScreen() {
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Expense Tracker" />
+      <ScreenHeader title="Arkenstone" />
       <Text style={styles.pageTitle}>Settings</Text>
       <Text style={styles.placeholder}>Nothing configurable yet.</Text>
     </View>

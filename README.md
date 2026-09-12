@@ -1,4 +1,4 @@
-# Expense Tracker
+# Arkenstone
 
 A small offline-first expense & income tracker for personal use, built with
 [Expo](https://expo.dev) and React Native. It replaces a paper journal:

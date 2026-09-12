@@ -65,7 +65,7 @@ export default function CategoryBreakdownScreen() {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Expense Tracker" />
+      <ScreenHeader title="Arkenstone" />
 
       <FlatList
         data={categories}

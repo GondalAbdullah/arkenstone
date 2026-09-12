@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "expense-tracker",
-    "slug": "expense-tracker",
+    "name": "Arkenstone",
+    "slug": "arkenstone",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expensetracker",
+    "scheme": "arkenstone",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png"
     },
     "android": {
-      "package": "com.abdullahgondal.expensetracker",
-      "versionCode": 2,
+      "package": "com.abdullahgondal.arkenstone",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#3F5148",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
@@ -43,8 +43,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "68fc2990-f0d1-485a-a4b2-09244c3a4c44"
+        "projectId": "9281b614-0c3d-46cf-a933-4bb996894376"
       }
-    }
+    },
+    "owner": "datasaaz"
   }
 }
