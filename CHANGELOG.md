@@ -1,0 +1,41 @@
+# Changelog
+
+All notable changes to this project are documented here. Format loosely
+follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [0.1.0] - 2026-09-12
+
+First tracked release. The app already recorded expenses; this release adds
+income tracking, switches to Rupees, and cleans up a handful of bugs found
+during a full repo review.
+
+### Added
+- Income tracking: the Add screen now has an Expense/Income toggle, with
+  its own categories (Salary, Business, Gift, Other).
+  ([ADR 0003](docs/adr/0003-unified-add-transaction-screen.md))
+- Custom in-app numeric keypad for amount entry (digits + backspace),
+  replacing the system keyboard.
+  ([ADR 0004](docs/adr/0004-custom-numeric-keypad.md))
+- `docs/adr/` — architecture decision records for this and future changes.
+- EAS Build configuration (`eas.json`) for producing an installable Android
+  APK. ([ADR 0007](docs/adr/0007-eas-build-android-apk.md))
+- App icon, adaptive icon, and splash screen, replacing the default Expo
+  scaffold branding.
+
+### Changed
+- Currency switched from USD (`$`, decimal cents) to Pakistani Rupees
+  (`Rs.`, whole integers only — no paisa).
+  ([ADR 0002](docs/adr/0002-currency-pkr-integer-amounts.md))
+- Category definitions centralized in `src/constants/categories.ts`,
+  shared by every screen instead of four separate, drifting copies.
+
+### Fixed
+- Manually-picked transaction dates were saved as UTC while auto-generated
+  timestamps were local time, which could bucket a backdated entry into
+  the wrong day/month for anyone outside UTC (relevant at UTC+5).
+- History's "SUBSCRIPTIONS" filter matched a category that was never
+  actually assignable to any transaction.
+- History/Categories/Settings all showed the header "Balance", copy-pasted
+  from the dashboard, instead of a title relevant to that screen.
+- `react-native-svg` was used by the Categories screen but not declared in
+  `package.json`, relying on it being installed transitively by chance.
