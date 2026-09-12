@@ -3,13 +3,20 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [0.1.1] - 2026-09-13
 
 ### Changed
+- App renamed from "expense-tracker" to **Arkenstone**, including the
+  Android package id and deep-link scheme.
+  ([ADR 0008](docs/adr/0008-rename-to-arkenstone.md))
 - Upgraded from Expo SDK 54 to **SDK 57** (React Native 0.86, React 19.2) —
   the SDK-54 pin was blocking Expo Go, which always tracks the newest SDK.
   ([ADR 0009](docs/adr/0009-upgrade-to-expo-sdk-57.md), supersedes
   [ADR 0005](docs/adr/0005-stay-on-expo-sdk-54.md))
+
+### Fixed
+- `DateTimePicker`'s deprecated `onChange` prop (pulled up to 9.1.0 by the
+  SDK 57 upgrade) replaced with `onValueChange`/`onDismiss`.
 
 ## [0.1.0] - 2026-09-12
 
