@@ -6,6 +6,8 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [0.1.1] - 2026-09-13
 
 ### Changed
+- New app icon (book + leaf artwork), replacing the wallet icon — adaptive
+  icon and splash screen background updated to match its light background.
 - App renamed from "expense-tracker" to **Arkenstone**, including the
   Android package id and deep-link scheme.
   ([ADR 0008](docs/adr/0008-rename-to-arkenstone.md))
@@ -38,9 +40,6 @@ during a full repo review.
   scaffold branding.
 
 ### Changed
-- App renamed from "expense-tracker" to **Arkenstone**, including the
-  Android package id and deep-link scheme.
-  ([ADR 0008](docs/adr/0008-rename-to-arkenstone.md))
 - Currency switched from USD (`$`, decimal cents) to Pakistani Rupees
   (`Rs.`, whole integers only — no paisa).
   ([ADR 0002](docs/adr/0002-currency-pkr-integer-amounts.md))
