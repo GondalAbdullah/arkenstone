@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.3] - 2026-09-13
+
+### Fixed
+- Duplicate back button on the Add screen — `expo-router`'s native header
+  was enabled on the "add" route on top of add.tsx's own custom header, so
+  two back arrows (one titled "Add Transaction", one "Add Expense"/"Add
+  Income") showed up stacked on top of each other.
+
 ## [0.1.2] - 2026-09-13
 
 Version bump only, no functional changes — needed a tag ahead of `v0.1.1`
