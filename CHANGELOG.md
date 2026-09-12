@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.2] - 2026-09-13
+
+Version bump only, no functional changes — needed a tag ahead of `v0.1.1`
+(already pushed publicly) to release from, without force-pushing over it.
+The released APK's internal version string still reads `0.1.1`; its
+`versionCode` (3), which is what Android actually uses to identify the
+build, is correct and unaffected.
+
 ## [0.1.1] - 2026-09-13
 
 ### Changed
