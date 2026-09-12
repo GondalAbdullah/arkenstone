@@ -1,20 +1,24 @@
 # Arkenstone
 
-A small offline-first expense & income tracker for personal use, built with
-[Expo](https://expo.dev) and React Native. It replaces a paper journal:
-every entry — expense or income — is saved locally in a SQLite database on
-the device, with a dashboard, category breakdown, and searchable history.
+Arkenstone is an offline-first expense and income tracker for personal use,
+built to replace the friction of maintaining a paper expense journal by
+hand. It runs entirely on local SQLite storage — no account, no backend, no
+internet connection required.
 
-- **Offline-first** — no backend, no account, no network calls. All data
-  lives in an on-device SQLite database (`expo-sqlite`).
-- **Currency** — Pakistani Rupees, entered and stored as whole integers (no
-  paisa/cents). See [docs/adr/0002](docs/adr/0002-currency-pkr-integer-amounts.md).
-- **Expense and income** in one unified Add screen with a type toggle. See
-  [docs/adr/0003](docs/adr/0003-unified-add-transaction-screen.md).
-- **Custom in-app keypad** for amount entry instead of the system keyboard.
-  See [docs/adr/0004](docs/adr/0004-custom-numeric-keypad.md).
+## Download
 
-Significant design decisions are recorded as ADRs in [docs/adr/](docs/adr/README.md).
+[Download Android APK](https://github.com/GondalAbdullah/arkenstone/releases/latest)
+
+## Features
+
+- **Offline-first** — all data lives in an on-device SQLite database
+  (`expo-sqlite`); no network calls, no account.
+- **Expense and income tracking** in one unified Add screen with a type
+  toggle, plus a dashboard, category breakdown, and searchable history.
+- **Pakistani Rupees** as the currency, entered and stored as whole
+  integers — no paisa/cents.
+- **Custom in-app numeric keypad** for amount entry, instead of the system
+  keyboard.
 
 ## Get started
 
@@ -37,7 +41,7 @@ Significant design decisions are recorded as ADRs in [docs/adr/](docs/adr/README
 ## Building an APK
 
 Release builds go through [EAS Build](https://docs.expo.dev/build/introduction/)
-(config in [eas.json](eas.json), see [ADR 0007](docs/adr/0007-eas-build-android-apk.md)):
+(config in [eas.json](eas.json)):
 
 ```bash
 npm install -g eas-cli   # once, if you don't already have it
@@ -58,7 +62,6 @@ src/
   constants/      # category definitions (icons, colors, budgets) shared across screens
   db/             # SQLite provider, schema, and TypeScript row types
   utils/          # currency formatting, local-time date helpers
-docs/adr/         # architecture decision records
 ```
 
 ## Tech stack
