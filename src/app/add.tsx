@@ -164,10 +164,11 @@ export default function AddTransactionScreen() {
               value={date}
               mode="date"
               display={Platform.OS === 'ios' ? 'inline' : 'default'}
-              onChange={(_, selected) => {
+              onValueChange={(_, selected) => {
                 setShowPicker(Platform.OS === 'ios');
-                if (selected) setDate(selected);
+                setDate(selected);
               }}
+              onDismiss={() => setShowPicker(false)}
             />
           )}
 
