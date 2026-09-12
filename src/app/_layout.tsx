@@ -9,8 +9,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="add"
           options={{
-            headerShown: true,
-            title: 'Add Transaction',
+            headerShown: false,
             presentation: 'modal',
           }}
         />
