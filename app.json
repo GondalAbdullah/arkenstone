@@ -14,7 +14,7 @@
       "package": "com.abdullahgondal.arkenstone",
       "versionCode": 2,
       "adaptiveIcon": {
-        "backgroundColor": "#3F5148",
+        "backgroundColor": "#F6F5F2",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#3F5148",
+          "backgroundColor": "#F6F5F2",
           "image": "./assets/images/android-icon-foreground.png",
           "imageWidth": 140
         }
