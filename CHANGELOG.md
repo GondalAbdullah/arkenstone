@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.4] - 2026-09-14
+
+### Added
+- Edit and delete for existing transactions. Tap a transaction (on the
+  dashboard or in History) to edit it; long-press to delete it. Editing
+  reuses the Add screen, now with a delete action too.
+
 ## [0.1.3] - 2026-09-13
 
 ### Fixed

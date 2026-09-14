@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, SectionList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SectionList, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
 import { ScreenHeader } from '@/components/screen-header';
 import { getCategoryMeta } from '@/constants/categories';
@@ -45,6 +45,7 @@ function groupLabel(date: Date) {
 
 export default function HistoryScreen() {
   const db = useSQLiteContext();
+  const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -60,6 +61,25 @@ export default function HistoryScreen() {
     } catch (error) {
       console.error('Failed to load history:', error);
     }
+  };
+
+  const handleDelete = (id: number) => {
+    Alert.alert('Delete transaction', 'This entry will be permanently removed.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await db.runAsync('DELETE FROM transactions WHERE id = ?', [id]);
+            loadHistory();
+          } catch (error) {
+            Alert.alert('Error', 'Could not remove entry.');
+            console.error(error);
+          }
+        },
+      },
+    ]);
   };
 
   useFocusEffect(
@@ -154,13 +174,16 @@ export default function HistoryScreen() {
           });
 
           return (
-            <View
+            <TouchableOpacity
               style={[
                 styles.row,
                 isFirst && styles.rowFirst,
                 isLast && styles.rowLast,
                 !isLast && styles.rowDivider,
               ]}
+              onPress={() => router.push({ pathname: '/add', params: { id: String(item.id) } })}
+              onLongPress={() => handleDelete(item.id)}
+              activeOpacity={0.7}
             >
               <View style={[styles.iconBadge, { backgroundColor: meta.tint }]}>
                 <Icon color={COLORS.onSurfaceVariant} size={20} />
@@ -174,7 +197,7 @@ export default function HistoryScreen() {
               <Text style={[styles.itemAmount, { color: item.type === 'income' ? COLORS.income : COLORS.onSurface }]}>
                 {formatSignedAmount(item.amount, item.type)}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         }}
         ListEmptyComponent={<Text style={styles.emptyText}>No transactions found.</Text>}

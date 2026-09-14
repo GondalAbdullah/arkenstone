@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Platform, ActivityIndicator } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useRouter } from 'expo-router';
-import { ArrowLeft, Calendar, Plus } from 'lucide-react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { ArrowLeft, Calendar, Plus, Check, Trash2 } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getCategoriesFor } from '@/constants/categories';
-import type { TransactionType } from '@/db/types';
+import type { Transaction, TransactionType } from '@/db/types';
 import { CURRENCY_SYMBOL, parseAmountDigits } from '@/utils/currency';
 import { toSqliteLocalDateTime } from '@/utils/datetime';
 import { NumericKeypad } from '@/components/numeric-keypad';
@@ -33,6 +33,11 @@ function formatDate(d: Date) {
 export default function AddTransactionScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const editingId = id ? Number(id) : null;
+  const isEditing = editingId != null;
+
+  const [loaded, setLoaded] = useState(!isEditing);
   const [type, setType] = useState<TransactionType>('expense');
   const [amountDigits, setAmountDigits] = useState('');
   const [name, setName] = useState('');
@@ -41,14 +46,32 @@ export default function AddTransactionScreen() {
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
 
-  // Switching Expense/Income swaps the whole category list, so the
-  // previously-selected category (e.g. "Food") no longer applies.
+  // Editing an existing entry: load it and prefill every field. Loading
+  // (rather than resetting the category to the new list's first entry, as
+  // the type toggle below does) sets `type` and `category` together, so
+  // there's no flash of a mismatched category before this finishes.
   useEffect(() => {
-    setCategory(getCategoriesFor(type)[0].key);
-  }, [type]);
+    if (!isEditing) return;
+    (async () => {
+      const row = await db.getFirstAsync<Transaction>('SELECT * FROM transactions WHERE id = ?', [editingId]);
+      if (row) {
+        setType(row.type);
+        setAmountDigits(String(row.amount));
+        setName(row.name ?? '');
+        setCategory(row.category);
+        setDate(new Date(row.timestamp));
+      }
+      setLoaded(true);
+    })();
+  }, [editingId]);
 
   const accent = type === 'income' ? COLORS.income : COLORS.primary;
   const accentContainer = type === 'income' ? COLORS.incomeContainer : COLORS.primaryContainer;
+
+  const selectType = (t: TransactionType) => {
+    setType(t);
+    setCategory(getCategoriesFor(t)[0].key);
+  };
 
   const handleSave = async () => {
     const numericAmount = parseAmountDigits(amountDigits);
@@ -58,16 +81,50 @@ export default function AddTransactionScreen() {
     }
 
     try {
-      await db.runAsync(
-        'INSERT INTO transactions (type, amount, category, name, timestamp) VALUES (?, ?, ?, ?, ?)',
-        [type, numericAmount, category, name, toSqliteLocalDateTime(date)]
-      );
+      if (isEditing) {
+        await db.runAsync(
+          'UPDATE transactions SET type = ?, amount = ?, category = ?, name = ?, timestamp = ? WHERE id = ?',
+          [type, numericAmount, category, name, toSqliteLocalDateTime(date), editingId]
+        );
+      } else {
+        await db.runAsync(
+          'INSERT INTO transactions (type, amount, category, name, timestamp) VALUES (?, ?, ?, ?, ?)',
+          [type, numericAmount, category, name, toSqliteLocalDateTime(date)]
+        );
+      }
       router.back();
     } catch (error) {
       Alert.alert('Error', 'Could not record entry into the ledger.');
       console.error(error);
     }
   };
+
+  const handleDelete = () => {
+    Alert.alert('Delete transaction', 'This entry will be permanently removed.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await db.runAsync('DELETE FROM transactions WHERE id = ?', [editingId]);
+            router.back();
+          } catch (error) {
+            Alert.alert('Error', 'Could not remove entry.');
+            console.error(error);
+          }
+        },
+      },
+    ]);
+  };
+
+  if (!loaded) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator color={COLORS.primary} size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -76,7 +133,16 @@ export default function AddTransactionScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
           <ArrowLeft color={COLORS.onSurface} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{type === 'income' ? 'Add Income' : 'Add Expense'}</Text>
+        <Text style={styles.headerTitle}>
+          {isEditing
+            ? type === 'income' ? 'Edit Income' : 'Edit Expense'
+            : type === 'income' ? 'Add Income' : 'Add Expense'}
+        </Text>
+        {isEditing && (
+          <TouchableOpacity onPress={handleDelete} style={[styles.iconButton, styles.deleteButton]}>
+            <Trash2 color={COLORS.onSurfaceVariant} size={20} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView
@@ -91,7 +157,7 @@ export default function AddTransactionScreen() {
               <TouchableOpacity
                 key={t}
                 style={[styles.typeOption, isActive && { backgroundColor: t === 'income' ? COLORS.income : COLORS.primary }]}
-                onPress={() => setType(t)}
+                onPress={() => selectType(t)}
               >
                 <Text style={[styles.typeOptionText, isActive && styles.typeOptionTextActive]}>
                   {t === 'income' ? 'Income' : 'Expense'}
@@ -174,8 +240,16 @@ export default function AddTransactionScreen() {
 
           {/* Save Button */}
           <TouchableOpacity style={[styles.saveBtn, { backgroundColor: accentContainer }]} onPress={handleSave}>
-            <Plus color={COLORS.onPrimary} size={18} />
-            <Text style={styles.saveBtnText}>{type === 'income' ? 'Add Income' : 'Add Expense'}</Text>
+            {isEditing ? (
+              <Check color={COLORS.onPrimary} size={18} />
+            ) : (
+              <Plus color={COLORS.onPrimary} size={18} />
+            )}
+            <Text style={styles.saveBtnText}>
+              {isEditing
+                ? type === 'income' ? 'Update Income' : 'Update Expense'
+                : type === 'income' ? 'Add Income' : 'Add Expense'}
+            </Text>
           </TouchableOpacity>
 
         </View>
@@ -189,6 +263,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.surface
   },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -201,6 +279,10 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'flex-start'
+  },
+  deleteButton: {
+    marginLeft: 'auto',
+    alignItems: 'flex-end',
   },
   headerTitle: {
     fontSize: 20,

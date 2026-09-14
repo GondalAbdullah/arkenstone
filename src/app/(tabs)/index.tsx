@@ -214,6 +214,7 @@ export default function DashboardScreen() {
           return (
             <TouchableOpacity
               style={styles.transactionItem}
+              onPress={() => router.push({ pathname: '/add', params: { id: String(item.id) } })}
               onLongPress={() => handleDelete(item.id)}
               activeOpacity={0.7}
             >

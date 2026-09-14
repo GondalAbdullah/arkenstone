@@ -20,3 +20,4 @@ only describing it in a commit message.
 - [0007 - EAS Build for internal Android APK distribution](0007-eas-build-android-apk.md)
 - [0008 - Rename the app to Arkenstone](0008-rename-to-arkenstone.md)
 - [0009 - Upgrade to Expo SDK 57](0009-upgrade-to-expo-sdk-57.md)
+- [0010 - Edit and delete transactions](0010-edit-and-delete-transactions.md)
