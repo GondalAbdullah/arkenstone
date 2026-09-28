@@ -181,7 +181,7 @@ export default function HistoryScreen() {
                 isLast && styles.rowLast,
                 !isLast && styles.rowDivider,
               ]}
-              onPress={() => router.push({ pathname: '/add', params: { id: String(item.id) } })}
+              onPress={() => router.push({ pathname: '/transaction', params: { id: String(item.id) } })}
               onLongPress={() => handleDelete(item.id)}
               activeOpacity={0.7}
             >

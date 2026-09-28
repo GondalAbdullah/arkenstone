@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.5] - 2026-09-28
+
+### Added
+- Tap a transaction to open a read-only details view — full note/category/
+  amount/date, with Edit and Delete actions. Previously the only way to see
+  a transaction's full note was to enter edit mode directly.
+
+### Changed
+- Release APK no longer bundles x86/x86_64 native libraries — only
+  `armeabi-v7a` and `arm64-v8a`, the two real Android phones actually use.
+  Shrinks the release from ~118 MB to an estimated ~68 MB with no
+  compatibility loss on any real device.
+  ([ADR 0011](docs/adr/0011-drop-x86-native-libs.md))
+
+### Removed
+- Budget tracking from the Categories screen ("over budget" labels, "of Rs
+  X" totals). There was never a way to actually set a budget — the numbers
+  were hardcoded placeholders. The per-category progress bar now shows
+  share of this month's total spending instead, a real figure.
+
 ## [0.1.4] - 2026-09-14
 
 ### Added

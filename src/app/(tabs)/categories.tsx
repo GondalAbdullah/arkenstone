@@ -17,7 +17,6 @@ const COLORS = {
   primary: '#4e635a',
   surfaceContainerLowest: '#ffffff',
   surfaceVariant: '#e4e2e1',
-  error: '#a63a3a',
 };
 
 // Ring / accent palette, cycled in spend-descending order
@@ -60,7 +59,6 @@ export default function CategoryBreakdownScreen() {
     }, [])
   );
 
-  const totalBudget = categories.reduce((acc, c) => acc + (getMeta(c.category).budget ?? 0), 0);
   let cumulative = 0;
 
   return (
@@ -102,50 +100,46 @@ export default function CategoryBreakdownScreen() {
                 })}
               </Svg>
               <View style={styles.ringCenter} pointerEvents="none">
-                <Text style={styles.ringLabel}>Spent</Text>
+                <Text style={styles.ringLabel}>Spent this month</Text>
                 <Text style={styles.ringAmount}>{formatAmount(totalExpense)}</Text>
-                <Text style={styles.ringOf}>of {formatAmount(totalBudget)}</Text>
               </View>
             </View>
 
             <Text style={styles.sectionTitle}>Category Breakdown</Text>
-            <Text style={styles.subtitle}>Monthly Budget Spending</Text>
+            <Text style={styles.subtitle}>Where this month's spending went</Text>
           </View>
         }
         renderItem={({ item }) => {
           const meta = getMeta(item.category);
           const Icon = meta.icon;
-          const budget = meta.budget ?? 0;
           const spent = item.total || 0;
-          const overBudget = budget > 0 && spent > budget;
-          const fillPct = budget > 0 ? Math.min(100, (spent / budget) * 100) : 0;
+          // Share of this month's total expenses — not a budget (the app
+          // doesn't have one), just how this category stacks up against
+          // everything else spent this month.
+          const sharePct = totalExpense > 0 ? Math.min(100, (spent / totalExpense) * 100) : 0;
           const ringColorIndex = categories.findIndex((c) => c.category === item.category);
-          const barColor = overBudget ? COLORS.error : PALETTE[ringColorIndex % PALETTE.length];
+          const barColor = PALETTE[ringColorIndex % PALETTE.length];
 
           return (
             <View style={styles.card}>
               <View style={styles.row}>
                 <View style={[styles.iconBadge, { backgroundColor: meta.tint }]}>
-                  <Icon color={overBudget ? COLORS.error : COLORS.onSurfaceVariant} size={20} />
+                  <Icon color={COLORS.onSurfaceVariant} size={20} />
                 </View>
 
                 <View style={styles.rowMid}>
                   <Text style={styles.categoryName}>{item.category}</Text>
-                  <Text style={[styles.categoryBlurb, overBudget && { color: COLORS.error }]}>
-                    {overBudget ? 'Over budget' : meta.blurb}
-                  </Text>
+                  <Text style={styles.categoryBlurb}>{meta.blurb}</Text>
                 </View>
 
                 <View style={styles.rowRight}>
-                  <Text style={[styles.categoryTotal, overBudget && { color: COLORS.error }]}>
-                    {formatAmount(spent)}
-                  </Text>
-                  <Text style={styles.categoryBudget}>of {formatAmount(budget)}</Text>
+                  <Text style={styles.categoryTotal}>{formatAmount(spent)}</Text>
+                  <Text style={styles.categoryShare}>{Math.round(sharePct)}% of total</Text>
                 </View>
               </View>
 
               <View style={styles.progressBarBackground}>
-                <View style={[styles.progressBarFill, { width: `${fillPct}%`, backgroundColor: barColor }]} />
+                <View style={[styles.progressBarFill, { width: `${sharePct}%`, backgroundColor: barColor }]} />
               </View>
             </View>
           );
@@ -167,7 +161,6 @@ const styles = StyleSheet.create({
   ringCenter: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
   ringLabel: { fontSize: 15, color: COLORS.onSurfaceVariant, marginBottom: 4 },
   ringAmount: { fontSize: 40, fontWeight: '700', color: COLORS.onSurface },
-  ringOf: { fontSize: 15, color: COLORS.onSurfaceVariant, marginTop: 4 },
 
   sectionTitle: { fontSize: 24, fontWeight: '700', color: COLORS.onSurface, textAlign: 'center', marginBottom: 4 },
   subtitle: { fontSize: 14, color: COLORS.onSurfaceVariant, textAlign: 'center', marginBottom: 24 },
@@ -180,7 +173,7 @@ const styles = StyleSheet.create({
   categoryBlurb: { fontSize: 13, color: COLORS.onSurfaceVariant, marginTop: 2 },
   rowRight: { alignItems: 'flex-end' },
   categoryTotal: { fontSize: 18, fontWeight: '700', color: COLORS.onSurface },
-  categoryBudget: { fontSize: 13, color: COLORS.onSurfaceVariant, marginTop: 2 },
+  categoryShare: { fontSize: 13, color: COLORS.onSurfaceVariant, marginTop: 2 },
 
   progressBarBackground: { height: 8, backgroundColor: COLORS.surfaceVariant, borderRadius: 4, overflow: 'hidden' },
   progressBarFill: { height: '100%', borderRadius: 4 },

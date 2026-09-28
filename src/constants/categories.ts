@@ -20,8 +20,6 @@ export interface CategoryDef {
   icon: LucideIcon;
   tint: string;
   color: string;
-  /** Monthly budget in whole Rupees — expense categories only. */
-  budget?: number;
   blurb?: string;
 }
 
@@ -31,14 +29,14 @@ export interface CategoryDef {
 // entry saved from one screen could fall back to a generic icon everywhere
 // else. Every screen now reads from here instead.
 export const EXPENSE_CATEGORIES: CategoryDef[] = [
-  { key: 'Food', icon: Utensils, tint: '#E3EDE6', color: '#3B7A57', budget: 800, blurb: 'Groceries & Dining' },
-  { key: 'Transit', icon: Car, tint: '#EAEAE7', color: '#5C6259', budget: 400, blurb: 'Fuel & Transport' },
-  { key: 'Shop', icon: ShoppingBag, tint: '#F3E3D3', color: '#C1682F', budget: 300, blurb: 'Shopping & Retail' },
-  { key: 'Home', icon: HomeIcon, tint: '#E7E3F5', color: '#6C5CB0', budget: 1500, blurb: 'Rent & Utilities' },
-  { key: 'Bills', icon: FileText, tint: '#FBF0D9', color: '#B8860B', budget: 100, blurb: 'Bills & Subscriptions' },
-  { key: 'Fun', icon: Film, tint: '#E4E2E1', color: '#4E635A', budget: 150, blurb: 'Entertainment' },
-  { key: 'Health', icon: Heart, tint: '#F7E6E0', color: '#A63A3A', budget: 200, blurb: 'Health & Wellness' },
-  { key: 'More', icon: MoreHorizontal, tint: '#E4E2E1', color: '#424845', budget: 250, blurb: 'Other Expenses' },
+  { key: 'Food', icon: Utensils, tint: '#E3EDE6', color: '#3B7A57', blurb: 'Groceries & Dining' },
+  { key: 'Transit', icon: Car, tint: '#EAEAE7', color: '#5C6259', blurb: 'Fuel & Transport' },
+  { key: 'Shop', icon: ShoppingBag, tint: '#F3E3D3', color: '#C1682F', blurb: 'Shopping & Retail' },
+  { key: 'Home', icon: HomeIcon, tint: '#E7E3F5', color: '#6C5CB0', blurb: 'Rent & Utilities' },
+  { key: 'Bills', icon: FileText, tint: '#FBF0D9', color: '#B8860B', blurb: 'Bills & Subscriptions' },
+  { key: 'Fun', icon: Film, tint: '#E4E2E1', color: '#4E635A', blurb: 'Entertainment' },
+  { key: 'Health', icon: Heart, tint: '#F7E6E0', color: '#A63A3A', blurb: 'Health & Wellness' },
+  { key: 'More', icon: MoreHorizontal, tint: '#E4E2E1', color: '#424845', blurb: 'Other Expenses' },
 ];
 
 export const INCOME_CATEGORIES: CategoryDef[] = [

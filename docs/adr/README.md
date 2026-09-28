@@ -21,3 +21,4 @@ only describing it in a commit message.
 - [0008 - Rename the app to Arkenstone](0008-rename-to-arkenstone.md)
 - [0009 - Upgrade to Expo SDK 57](0009-upgrade-to-expo-sdk-57.md)
 - [0010 - Edit and delete transactions](0010-edit-and-delete-transactions.md)
+- [0011 - Drop x86/x86_64 native libraries from the release APK](0011-drop-x86-native-libs.md)
