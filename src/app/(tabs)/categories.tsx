@@ -1,11 +1,24 @@
 import { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { ScreenHeader } from '@/components/screen-header';
 import { getCategoryMeta as getMeta } from '@/constants/categories';
 import { formatAmount } from '@/utils/currency';
+
+function monthKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthLabel(d: Date) {
+  return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+}
+
+function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
 
 // Colors derived from the same Tailwind config as the rest of the app
 const COLORS = {
@@ -29,35 +42,50 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function CategoryBreakdownScreen() {
   const db = useSQLiteContext();
+  const [selectedMonth, setSelectedMonth] = useState(() => startOfMonth(new Date()));
   const [categories, setCategories] = useState<{ category: string; total: number }[]>([]);
   const [totalExpense, setTotalExpense] = useState(0);
 
-  const loadCategoryData = async () => {
-    try {
-      const result = await db.getAllAsync(`
-        SELECT 
-          category,
-          SUM(amount) as total
-        FROM transactions
-        WHERE type = 'expense' 
-          AND strftime('%Y-%m', timestamp) = strftime('%Y-%m', 'now', 'localtime')
-        GROUP BY category
-        ORDER BY total DESC;
-      `);
+  const isCurrentMonth = monthKey(selectedMonth) === monthKey(new Date());
 
-      setCategories(result as { category: string; total: number }[]);
-      const sum = (result as { total: number }[]).reduce((acc, curr) => acc + (curr.total || 0), 0);
-      setTotalExpense(sum);
-    } catch (error) {
-      console.error('Failed to load category breakdown:', error);
-    }
-  };
+  const loadCategoryData = useCallback(
+    async (month: Date) => {
+      try {
+        const result = await db.getAllAsync(
+          `SELECT
+            category,
+            SUM(amount) as total
+          FROM transactions
+          WHERE type = 'expense'
+            AND strftime('%Y-%m', timestamp) = ?
+          GROUP BY category
+          ORDER BY total DESC;`,
+          [monthKey(month)]
+        );
+
+        setCategories(result as { category: string; total: number }[]);
+        const sum = (result as { total: number }[]).reduce((acc, curr) => acc + (curr.total || 0), 0);
+        setTotalExpense(sum);
+      } catch (error) {
+        console.error('Failed to load category breakdown:', error);
+      }
+    },
+    [db]
+  );
 
   useFocusEffect(
     useCallback(() => {
-      loadCategoryData();
-    }, [])
+      loadCategoryData(selectedMonth);
+    }, [selectedMonth, loadCategoryData])
   );
+
+  const shiftMonth = (delta: number) => {
+    setSelectedMonth((prev) => {
+      const next = startOfMonth(new Date(prev.getFullYear(), prev.getMonth() + delta, 1));
+      // Never navigate past the current month — there's nothing to show yet.
+      return next > startOfMonth(new Date()) ? prev : next;
+    });
+  };
 
   let cumulative = 0;
 
@@ -72,6 +100,29 @@ export default function CategoryBreakdownScreen() {
         contentContainerStyle={{ paddingBottom: 30 }}
         ListHeaderComponent={
           <View>
+            <Text style={styles.sectionTitle}>Category Breakdown</Text>
+
+            {/* Month navigation — this screen used to be locked to the
+                current month with no way back, which made it useless once
+                the month changed: your spending history was still in
+                History, but there was nowhere to *analyze* a past month. */}
+            <View style={styles.monthNav}>
+              <TouchableOpacity onPress={() => shiftMonth(-1)} style={styles.monthNavBtn} hitSlop={8}>
+                <ChevronLeft color={COLORS.onSurfaceVariant} size={20} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setSelectedMonth(startOfMonth(new Date()))}>
+                <Text style={styles.monthNavLabel}>{monthLabel(selectedMonth)}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => shiftMonth(1)}
+                disabled={isCurrentMonth}
+                style={styles.monthNavBtn}
+                hitSlop={8}
+              >
+                <ChevronRight color={isCurrentMonth ? COLORS.surfaceVariant : COLORS.onSurfaceVariant} size={20} />
+              </TouchableOpacity>
+            </View>
+
             {/* Donut chart */}
             <View style={styles.ringWrap}>
               <Svg width={RING_SIZE} height={RING_SIZE}>
@@ -100,13 +151,10 @@ export default function CategoryBreakdownScreen() {
                 })}
               </Svg>
               <View style={styles.ringCenter} pointerEvents="none">
-                <Text style={styles.ringLabel}>Spent this month</Text>
+                <Text style={styles.ringLabel}>{isCurrentMonth ? 'Spent so far' : 'Spent'}</Text>
                 <Text style={styles.ringAmount}>{formatAmount(totalExpense)}</Text>
               </View>
             </View>
-
-            <Text style={styles.sectionTitle}>Category Breakdown</Text>
-            <Text style={styles.subtitle}>Where this month's spending went</Text>
           </View>
         }
         renderItem={({ item }) => {
@@ -144,7 +192,13 @@ export default function CategoryBreakdownScreen() {
             </View>
           );
         }}
-        ListEmptyComponent={<Text style={styles.emptyText}>No spending recorded for this cycle yet.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            {isCurrentMonth
+              ? 'No spending recorded yet this month.'
+              : `No spending recorded in ${monthLabel(selectedMonth)}.`}
+          </Text>
+        }
       />
     </View>
   );
@@ -162,8 +216,24 @@ const styles = StyleSheet.create({
   ringLabel: { fontSize: 15, color: COLORS.onSurfaceVariant, marginBottom: 4 },
   ringAmount: { fontSize: 40, fontWeight: '700', color: COLORS.onSurface },
 
-  sectionTitle: { fontSize: 24, fontWeight: '700', color: COLORS.onSurface, textAlign: 'center', marginBottom: 4 },
-  subtitle: { fontSize: 14, color: COLORS.onSurfaceVariant, textAlign: 'center', marginBottom: 24 },
+  sectionTitle: { fontSize: 24, fontWeight: '700', color: COLORS.onSurface, textAlign: 'center', marginBottom: 16 },
+
+  monthNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+    marginBottom: 12,
+  },
+  monthNavBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.surfaceContainerLowest,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  monthNavLabel: { fontSize: 15, fontWeight: '600', color: COLORS.onSurface, minWidth: 140, textAlign: 'center' },
 
   card: { backgroundColor: COLORS.surfaceContainerLowest, padding: 18, borderRadius: 18, marginBottom: 14 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },

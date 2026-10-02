@@ -28,17 +28,22 @@ export default function DashboardScreen() {
   const db = useSQLiteContext();
   const router = useRouter();
   const [totals, setTotals] = useState({ income: 0, expense: 0 });
+  const [monthExpense, setMonthExpense] = useState(0);
   const [prevExpense, setPrevExpense] = useState(0);
   const [recent, setRecent] = useState<Transaction[]>([]);
   const [week, setWeek] = useState<{ label: string; total: number; isToday: boolean }[]>([]);
 
   const loadData = async () => {
     try {
-      // this month's income/expense totals
+      // all-time income/expense totals — this is what "Current balance" means:
+      // the running total of every transaction ever recorded, not just this
+      // month's. (Scoping this to the current month was the bug reported in
+      // Oct 2026: balance appeared to reset — "lose" prior months' savings —
+      // the moment a new month started, since there was nothing recorded yet
+      // in the new month.)
       const totalsResult = await db.getAllAsync(`
-        SELECT type, SUM(amount) as total 
-        FROM transactions 
-        WHERE strftime('%Y-%m', timestamp) = strftime('%Y-%m', 'now', 'localtime')
+        SELECT type, SUM(amount) as total
+        FROM transactions
         GROUP BY type;
       `);
 
@@ -51,6 +56,17 @@ export default function DashboardScreen() {
         if (row.type === 'expense') expense = row.total || 0;
       });
       setTotals({ income, expense });
+
+      // this month's expense total, for the "Total spent (this month)" card
+      // and its "vs last month" comparison — deliberately separate from the
+      // all-time balance above.
+      const monthResult = await db.getAllAsync(`
+        SELECT SUM(amount) as total
+        FROM transactions
+        WHERE type = 'expense'
+          AND strftime('%Y-%m', timestamp) = strftime('%Y-%m', 'now', 'localtime');
+      `);
+      setMonthExpense((monthResult[0] as any)?.total || 0);
 
       // last month's expense, to power the "vs last month" badge
       const prevResult = await db.getAllAsync(`
@@ -127,7 +143,7 @@ export default function DashboardScreen() {
 
   // percent change vs last month — down is good (spent less), matches the mockup's badge
   const pctChange = prevExpense > 0
-    ? Math.round(((totals.expense - prevExpense) / prevExpense) * 100)
+    ? Math.round(((monthExpense - prevExpense) / prevExpense) * 100)
     : 0;
   const spendingDown = pctChange <= 0;
   const maxDay = Math.max(1, ...week.map((d) => d.total));
@@ -150,11 +166,11 @@ export default function DashboardScreen() {
               <View style={styles.balanceDivider} />
               <View style={styles.breakdownRow}>
                 <View>
-                  <Text style={styles.breakdownLabel}>Income</Text>
+                  <Text style={styles.breakdownLabel}>Total income</Text>
                   <Text style={styles.breakdownIncome}>{formatSignedAmount(totals.income, 'income')}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.breakdownLabel}>Expenses</Text>
+                  <Text style={styles.breakdownLabel}>Total expenses</Text>
                   <Text style={styles.breakdownExpense}>{formatSignedAmount(totals.expense, 'expense')}</Text>
                 </View>
               </View>
@@ -165,7 +181,7 @@ export default function DashboardScreen() {
               <View style={styles.spendHeaderRow}>
                 <View>
                   <Text style={styles.spendLabel}>Total spent (this month)</Text>
-                  <Text style={styles.spendAmount}>{formatAmount(totals.expense)}</Text>
+                  <Text style={styles.spendAmount}>{formatAmount(monthExpense)}</Text>
                 </View>
                 {prevExpense > 0 && (
                   <View style={styles.pctBadge}>

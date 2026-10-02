@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.6] - 2026-10-02
+
+### Fixed
+- **Dashboard "Current balance" was actually only this month's net income
+  minus expenses**, not a running total — so it appeared to reset (and
+  income looked like it had "disappeared") the moment a new month started.
+  It's now a true all-time balance across every transaction ever recorded.
+  No data was ever lost; this was a display bug.
+  ([ADR 0012](docs/adr/0012-all-time-balance-and-month-navigation.md))
+
+### Added
+- Month navigation (‹ / ›) on the Category Breakdown screen — it was
+  locked to the current month with no way back, so a past month's spending
+  became unanalyzable the moment the month changed. Same ADR as above.
+
 ## [0.1.5] - 2026-09-28
 
 ### Added
